@@ -1,0 +1,362 @@
+!doctype html
+html lang=en
+head
+meta charset=utf-8 
+meta name=viewport content=width=device-width,initial-scale=1 
+titleHappy Birthday ❤️title
+style
+   -- Basic theme & layout -- 
+  root{
+    --deep-red #B3001B;
+    --black #0a0a0a;
+    --muted #f5f3f2;
+  }
+  html,body{height100%;margin0;font-familyTimes New Roman, Times, serif;background#000;}
+  body{
+    background radial-gradient(1200px 500px at 10% 10%, rgba(179,0,27,0.12), transparent),
+                linear-gradient(180deg,#070707 0%, #0f0505 60%, #120000 100%);
+    colorvar(--muted);
+    overflowhidden;
+  }
+
+   -- Center hero area -- 
+  .hero{
+    positionrelative;
+    min-height100vh;
+    displayflex;
+    flex-directioncolumn;
+    align-itemscenter;
+    justify-contentcenter;
+    text-aligncenter;
+    padding2rem;
+    z-index2;
+  }
+
+  h1{
+    font-size3rem;
+    margin0 0 0.5rem 0;
+    letter-spacing1px;
+    text-shadow0 6px 18px rgba(179,0,27,0.25), 0 1px 0 rgba(255,255,255,0.02);
+  }
+  p.lead{margin0 0 1.25rem 0;font-size1.05rem;opacity0.95}
+
+  .controls{displayflex;gap1rem;align-itemscenter;justify-contentcenter;margin-top1rem}
+  .btn{
+    backgroundlinear-gradient(180deg, rgba(179,0,27,0.95), #850014);
+    colorwhite;bordernone;padding0.65rem 1rem;border-radius10px;cursorpointer;
+    font-familyTimes New Roman, Times, serif;font-size1rem;box-shadow0 8px 30px rgba(0,0,0,0.6);
+    transitiontransform .12s ease, box-shadow .12s ease;
+  }
+  .btnactive{transformtranslateY(2px)}
+  .btn.secondary{
+    backgroundtransparent;border1px solid rgba(255,255,255,0.08);
+    colorvar(--muted);
+  }
+
+   -- Floating hearts background -- 
+  .hearts{
+    positionfixed;inset0;pointer-eventsnone;z-index1;overflowhidden;
+  }
+  .heart{
+    positionabsolute;width28px;height28px;transformtranslate(-50%,-50%) rotate(-45deg);
+    backgroundvar(--deep-red);border-radius6px 6px 0 0;opacity0.85;
+    animationfloatUp linear infinite;
+    box-shadow0 4px 20px rgba(179,0,27,0.25), inset 0 -4px 8px rgba(0,0,0,0.2);
+  }
+  .heartbefore,.heartafter{
+    content;positionabsolute;width28px;height28px;border-radius50%;
+    backgroundvar(--deep-red);
+  }
+  .heartbefore{top-14px;left0}
+  .heartafter{left14px;top0}
+
+  @keyframes floatUp{
+    from { transformtranslate(-50%,120%) rotate(-45deg) scale(.9); opacity0; }
+    8% { opacity1; }
+    to { transformtranslate(-50%,-120%) rotate(-45deg) scale(1.05); opacity0; }
+  }
+
+   -- Area for interactive page -- 
+  .interactive{
+    positionfixed;inset0;displayflex;align-itemscenter;justify-contentcenter;flex-directioncolumn;gap1.25rem;
+    z-index3;pointer-eventsauto;padding2rem;
+  }
+
+   -- Balloons (created in JS) -- 
+  .balloon{
+    positionabsolute;bottom-100px;border-radius50% 50% 45% 45%;
+    width56px;height80px;displayflex;align-itemsflex-end;justify-contentcenter;
+    transform-origincenter bottom;box-shadow0 8px 18px rgba(0,0,0,0.35);
+    animationrise linear forwards;
+  }
+  .string{
+    positionabsolute;bottom-20px;width2px;height60px;backgroundrgba(255,255,255,0.2);
+    left50%;transformtranslateX(-50%);border-radius1px;
+  }
+  @keyframes rise{
+    to { transform translateY(-140vh) }
+  }
+
+   -- Heart button -- 
+  .big-heart{
+    width140px;height140px;border-radius50%;displayflex;align-itemscenter;justify-contentcenter;
+    background radial-gradient(circle at 35% 30%, rgba(255,255,255,0.06), rgba(179,0,27,0.95));
+    box-shadow0 10px 40px rgba(179,0,27,0.25), 0 2px 6px rgba(0,0,0,0.6);
+    cursorpointer;border4px solid rgba(255,255,255,0.04);
+    transitiontransform .15s ease, box-shadow .15s ease;
+  }
+  .big-heartactive{transformscale(.98)}
+  .big-heart .icon{
+    width70px;height70px; backgroundvar(--deep-red); transform rotate(-45deg); border-radius6px 6px 0 0;
+    positionrelative;box-shadowinset 0 -8px 14px rgba(0,0,0,0.18), 0 6px 20px rgba(179,0,27,0.2);
+  }
+  .big-heart .iconbefore,.big-heart .iconafter{
+    content;positionabsolute;width70px;height70px;border-radius50%;backgroundvar(--deep-red);
+  }
+  .big-heart .iconbefore{top-35px;left0}
+  .big-heart .iconafter{left35px;top0}
+
+   -- Final message pane -- 
+  .final{
+    margin-top2rem;font-size1.15rem;opacity0.98;
+    text-shadow0 6px 18px rgba(0,0,0,0.6);
+  }
+
+   -- small screens -- 
+  @media (max-width520px){
+    h1{font-size2.2rem}
+    .big-heart{width120px;height120px}
+  }
+
+   -- Canvas confetti overlay -- 
+  canvas.confetti-canvas{ positionfixed; inset0;pointer-eventsnone; z-index4; }
+style
+head
+body
+
+!-- Floating hearts container --
+div class=hearts id=heartsdiv
+
+!-- Hero --
+section class=hero id=hero
+  h1 id=mainTitleHappy Birthday, span id=hisName[His Name]span ❤️h1
+  p class=leadA little website made with all my love — click to begin the celebration.p
+
+  div class=controls
+    !-- Music player (either use the audio file option or the YouTube embed option below) --
+    button class=btn id=musicTogglePlay Music ▶button
+    button class=btn secondary id=startBtnClick to Beginbutton
+  div
+section
+
+!-- Interactive area --
+section class=interactive id=interactive style=displaynone;
+  div style=max-width880px;padding1rem;
+    p style=font-size1.05rem;margin0 0 1rem 0;Every click makes the party pop — try clicking anywhere for balloons 🎈p
+
+    !-- Big heart button --
+    div style=displayflex;gap1rem;align-itemscenter;justify-contentcenter;flex-directioncolumn;
+      div class=big-heart id=heartBtn title=Press me!
+        div class=icondiv
+      div
+      div class=final id=finalMsgPress the heart to see something extra special ❤️div
+    div
+
+    div style=margin-top1.25rem;font-size0.95rem;opacity0.9
+      emTip Press the music button again to pause the song.em
+    div
+  div
+section
+
+!-- Confetti canvas --
+canvas class=confetti-canvas id=confettiCanvascanvas
+
+!-- Hidden audio (option to use your own mp3 or replace with streaming embed) --
+!-- Option A Use a local MP3 file named is_it_really_you.mp3 placed next to index.html. --
+audio id=bgAudio src=is_it_really_you.mp3 preload=noneaudio
+
+!-- Option B (alternative) To embed YouTube instead, replace the audio controls by adding an iframe with the YouTube URL.
+     (Instructions in the README section below) --
+
+script
+ --------------------------
+   Utility create floating hearts
+   -------------------------- 
+const heartsContainer = document.getElementById('hearts');
+function spawnHeart() {
+  const h = document.createElement('div');
+  h.className = 'heart';
+  const left = Math.random()  100;
+  const size = 12 + Math.random()36;
+  h.style.left = left + '%';
+  h.style.width = size+'px';
+  h.style.height = size+'px';
+  h.style.animationDuration = (6 + Math.random()8) + 's';
+  h.style.opacity = 0.6 + Math.random()0.4;
+  heartsContainer.appendChild(h);
+   clean after animation
+  setTimeout(()= h.remove(), 16000);
+}
+setInterval(spawnHeart, 900);
+
+ --------------------------
+   Balloon spawn on clicks
+   -------------------------- 
+const colors = ['#B3001B','#0a0a0a','#6f0b0b','#13060a'];
+function spawnBalloon(x,y){
+  const b = document.createElement('div');
+  b.className='balloon';
+  const color = colors[Math.floor(Math.random()colors.length)];
+  b.style.left = (x !== undefined  x  (Math.random()80+10)) + 'px';
+  b.style.bottom = '-120px';
+  const w = 40 + Math.random()40;
+  const h = 60 + Math.random()60;
+  b.style.width = w + 'px';
+  b.style.height = h + 'px';
+  b.style.background = color;
+  b.style.animationDuration = (6 + Math.random()6) + 's';
+   string
+  const s = document.createElement('div'); s.className='string';
+  b.appendChild(s);
+  document.body.appendChild(b);
+   remove after animation
+  setTimeout(()= b.remove(), 12000);
+}
+
+ click anywhere to spawn multiple balloons and confetti 
+document.addEventListener('click', (e) = {
+   If interactive page is hidden, ignore clicks except the start button or music toggle
+  if (document.getElementById('interactive').style.display === 'none') return;
+  const x = e.clientX;
+   spawn a few balloons
+  const count = 1 + Math.floor(Math.random()3);
+  for (let i=0;icount;i++){
+     slight offset
+    const offsetX = x + (Math.random()120-60);
+    spawnBalloon(offsetX, e.clientY);
+  }
+   little confetti burst
+  confettiBurst(30);
+});
+
+ --------------------------
+   Heart button - fireworks + message
+   -------------------------- 
+const heartBtn = document.getElementById('heartBtn');
+const finalMsg = document.getElementById('finalMsg');
+heartBtn.addEventListener('click', ()={
+   small pulse
+  heartBtn.animate([{transform'scale(1)'},{transform'scale(1.06)'},{transform'scale(1)'}], {duration420});
+  confettiBurst(60);
+   show a personal message (you can change this)
+  finalMsg.innerHTML = `I will love you always — today, tomorrow, forever. brstrongHappy Birthday ❤️strong`;
+});
+
+ --------------------------
+   Simple canvas confetti implementation
+   -------------------------- 
+const canvas = document.getElementById('confettiCanvas');
+const ctx = canvas.getContext('2d');
+let confettiPieces = [];
+function resizeCanvas(){ canvas.width = innerWidth; canvas.height = innerHeight; }
+resizeCanvas(); window.addEventListener('resize', resizeCanvas);
+
+function createConfetti(x,y,count=40){
+  for (let i=0;icount;i++){
+    confettiPieces.push({
+      x x  Math.random()canvas.width,
+      y y  Math.random()canvas.height2,
+      w 6 + Math.random()8,
+      h 6 + Math.random()8,
+      vx (Math.random()-0.5)  8,
+      vy -5 - Math.random()7,
+      rot Math.random()360,
+      vr (Math.random()-0.5)12,
+      color colors[Math.floor(Math.random()colors.length)]
+    });
+  }
+}
+
+function confettiBurst(n){
+  createConfetti(null,null,n);
+}
+
+function updateConfetti(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  for (let i = confettiPieces.length-1; i=0; i--){
+    const p = confettiPieces[i];
+    p.vy += 0.25;  gravity
+    p.x += p.vx;
+    p.y += p.vy;
+    p.rot += p.vr;
+    ctx.save();
+    ctx.translate(p.x,p.y);
+    ctx.rotate(p.rot  Math.PI180);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(-p.w2, -p.h2, p.w, p.h);
+    ctx.restore();
+    if (p.y  canvas.height + 50) confettiPieces.splice(i,1);
+  }
+  requestAnimationFrame(updateConfetti);
+}
+updateConfetti();
+
+ --------------------------
+   Simple Click to Begin & navigation
+   -------------------------- 
+const startBtn = document.getElementById('startBtn');
+startBtn.addEventListener('click', ()= {
+  document.getElementById('hero').style.display = 'none';
+  document.getElementById('interactive').style.display = 'flex';
+   small entrance confetti and balloon
+  confettiBurst(40);
+  for (let i=0;i6;i++) spawnBalloon(120 + i80);
+});
+
+ --------------------------
+   Music controls
+   -------------------------- 
+const audio = document.getElementById('bgAudio');
+const musicBtn = document.getElementById('musicToggle');
+let audioInitialized = false;
+
+musicBtn.addEventListener('click', async ()={
+   Playpause toggle. Browsers require user interaction to play — we satisfy that by handling click.
+  if (!audioInitialized){
+     try to load and play
+    try {
+      await audio.play();
+      audioInitialized = true;
+      musicBtn.textContent = 'Pause Music ⏸';
+    } catch (err){
+       silent failure audio file missing or blocked. show instructive message.
+      alert('Audio file not found. To add music place an MP3 named is_it_really_you.mp3 in the same folder as index.html, or use the YouTube embed option described below.');
+    }
+    return;
+  }
+  if (audio.paused) { audio.play(); musicBtn.textContent = 'Pause Music ⏸'; }
+  else { audio.pause(); musicBtn.textContent = 'Play Music ▶'; }
+});
+
+ --------------------------
+   Small helpful allow heartballoon clicks on touchmove and tap
+   -------------------------- 
+['touchstart','touchmove'].forEach(ev = {
+  document.addEventListener(ev, (e)={
+    if (document.getElementById('interactive').style.display === 'none') return;
+    const t = e.touches  e.touches[0]  e;
+    spawnBalloon(t.clientX, t.clientY);
+    confettiBurst(6);
+  }, {passivetrue});
+});
+
+ --------------------------
+   Personalize quickly set his name if you want
+   -------------------------- 
+ Replace [His Name] with the real name
+document.getElementById('hisName').textContent = 'Your Love';  -- change this to his name like David
+
+script
+
+body
+html
